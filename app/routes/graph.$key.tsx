@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { json } from '@remix-run/node'
+import { fetch, json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
 import invariant from 'tiny-invariant'
 
@@ -8,6 +8,17 @@ export type RawGraphData = {
   datasets: {
     label?: string
     data: number[]
+  }[]
+}
+
+interface PopulationDataSet {
+  data: {
+    'ID Nation': string;
+    Nation: string;
+    'ID Year': number;
+    Year: string;
+    Population: number;
+    'Slug Nation': string;
   }[]
 }
 
@@ -72,6 +83,29 @@ export const loader = async ({ params }: LoaderArgs) => {
         ],
       }
       break
+
+      case 'us-population-line':
+        const response = await fetch('https://datausa.io/api/data?drilldowns=Nation&measures=Population')
+        const data: PopulationDataSet = await response.json()
+      
+        const sortedData = data.data.sort((a, b) => parseInt(a.Year) - parseInt(b.Year))
+
+        const graphData = sortedData.reduce((acc, item) => {
+          acc.labels.push(item.Year)
+          acc.datasets[0].data.push(item.Population)
+          return acc
+        }, {
+          labels: [] as string[],
+          datasets: [
+            {
+              label: 'US Population',
+              data: [] as number[],
+            },
+          ],
+        });
+      
+        rawGraphData = graphData
+        break
 
     default:
       throw new Error(`Unknown graph key: ${params.key}`)

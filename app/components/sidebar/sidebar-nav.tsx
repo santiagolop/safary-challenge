@@ -52,6 +52,16 @@ const items = [
     href: '/simple-pie',
     icon: <PieChart />,
   },
+  {
+    title: 'My awesome Doughnut chart',
+    href: '/simple-doughnut',
+    icon: <PieChart />,
+  },
+  {
+    title: 'US Population Lines Chart',
+    href: '/us-population-lines',
+    icon: <TrendingUp />,
+  },
 ]
 
 const SidebarNav = () => {

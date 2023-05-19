@@ -1,4 +1,4 @@
-import { Box, Card, CardContent } from '@mui/material'
+import { Box, Card, CardContent, CircularProgress } from '@mui/material'
 import { useFetcher } from '@remix-run/react'
 import { useEffect } from 'react'
 
@@ -23,9 +23,10 @@ export default function DataCard({ graphKey, type }: DataCardProps) {
   return (
     <Card>
       <CardContent>
-        <Box sx={{ height: '300px' }}>
-          <DataChart type={type} rawGraphData={fetcher.data} />
-        </Box>
+      <Box sx={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {fetcher.state === 'loading' ? <CircularProgress size={100} /> : null}
+        <DataChart type={type} rawGraphData={fetcher.data} />
+      </Box>
       </CardContent>
     </Card>
   )

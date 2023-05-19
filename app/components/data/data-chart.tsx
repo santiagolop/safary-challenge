@@ -13,7 +13,7 @@ import {
 } from 'chart.js'
 import type { ChartDataset, ChartData } from 'chart.js'
 import { useMemo } from 'react'
-import { Line, Pie } from 'react-chartjs-2'
+import { Doughnut, Line, Pie } from 'react-chartjs-2'
 
 import { getDatasetColour } from '~/helpers/colours'
 import type { RawGraphData } from '~/routes/graph.$key'
@@ -66,10 +66,14 @@ type DataCardProps = {
 }
 
 export default function DataChart({ type, rawGraphData }: DataCardProps) {
-  if (type === 'pie') {
-    return <PieChart rawGraphData={rawGraphData} />
+  switch (type) {
+    case 'pie':
+      return <PieChart rawGraphData={rawGraphData} />
+    case 'doughnut':
+      return <DoughnutChart rawGraphData={rawGraphData} />
+    default:
+      return <LineChart rawGraphData={rawGraphData} />
   }
-  return <LineChart rawGraphData={rawGraphData} />
 }
 
 const LineChart = ({ rawGraphData }: { rawGraphData?: RawGraphData }) => {
@@ -122,4 +126,33 @@ const PieChart = ({ rawGraphData }: { rawGraphData?: RawGraphData }) => {
   if (!chartData) return null
 
   return <Pie data={chartData} options={options} />
+}
+
+const DoughnutChart = ({ rawGraphData }: { rawGraphData?: RawGraphData }) => {
+  const chartData = useMemo((): ChartData<'doughnut'> | null => {
+    if (!rawGraphData) return null
+
+    return {
+      ...rawGraphData,
+      datasets: rawGraphData.datasets.map(
+        (dataset: ChartDataset<'doughnut'>): ChartDataset<'doughnut'> => {
+          return {
+            ...dataset,
+            borderColor: '#fff',
+            backgroundColor: Array.from({ length: dataset.data.length }).map(
+              (_, idx: number) => getDatasetColour(idx)
+            ),
+          }
+        }
+      ),
+    }
+  }, [rawGraphData])
+
+  const options = {
+    ...chartOptions,
+  }
+
+  if (!chartData) return null
+
+  return <Doughnut data={chartData} options={options} />
 }
